@@ -8,7 +8,8 @@ on:
       commit-sha:
         required: true
         type: string
-
+  workflow_dispatch:
+    
 jobs:
   call-on-new-commit:
     runs-on: ubuntu-latest
