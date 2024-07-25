@@ -11,6 +11,8 @@ on:
 jobs:
   commit-and-push:
     runs-on: ubuntu-latest
+    outputs:
+      commit-sha: ${{ steps.commit.outputs.commit-sha }}
     
     steps:
       - uses: actions/checkout@v4
@@ -27,8 +29,16 @@ jobs:
           message: 'ci: automatically update file.txt, from ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
           files: file.txt
 
+      - name: Get commit SHA
+        id: commit
+        run: echo "commit-sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      
+
   call-workflow:
     name: Call on new commit
     needs: [commit-and-push]
     uses: ./.github/workflows/call-on-new-commit.yaml
+    with:
+      commit-sha: ${{ needs.commit-and-push.outputs.commit-sha }}
     secrets: inherit
