@@ -31,7 +31,9 @@ jobs:
 
       - name: Get commit SHA
         id: commit
-        run: echo "commit-sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+        run: |
+          set -ex
+          echo "commit-sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       
 
