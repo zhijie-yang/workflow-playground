@@ -16,4 +16,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.commit-sha }}
+          ref: ${{ inputs.commit-sha }}
