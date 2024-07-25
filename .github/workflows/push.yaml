@@ -1,0 +1,25 @@
+# Add a new line with time stamp to the file.txt when dispatched
+
+name: Push
+
+on:
+  workflow_dispatch:
+
+jobs:
+  commit-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+    
+      - name: Add time stamp
+        run: |
+            echo $(date) >> file.txt
+
+      - name: Commit file.txt
+        uses: actions-x/commit@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+          message: 'ci: automatically update file.txt, from ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+          files: file.txt
