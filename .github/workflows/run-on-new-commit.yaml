@@ -1,6 +1,6 @@
 # Use `workflow_run` event to trigger a workflow when `Push` workflow completes with conclusion success
 
-name: Call on new commit
+name: Run on new commit
 
 on:
   workflow_run:
