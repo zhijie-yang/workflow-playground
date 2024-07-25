@@ -1,0 +1,21 @@
+# Use `workflow_run` event to trigger a workflow when `Push` workflow completes with conclusion success
+
+name: Call on new commit
+
+on:
+  workflow_run:
+    workflows: ["Push"]
+    types:
+      - completed
+
+jobs:
+  on-success:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+
+  call-on-new-commit:
+    runs-on: ubuntu-latest
+    needs: [on-success]
+    steps:
+      - uses: actions/checkout@v4

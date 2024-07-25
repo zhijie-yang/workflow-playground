@@ -1,0 +1,13 @@
+# A workflow is called by workflow Push and runs checkout action
+
+name: Call on new commit
+
+on:
+  workflow_call:
+
+jobs:
+  call-on-new-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4

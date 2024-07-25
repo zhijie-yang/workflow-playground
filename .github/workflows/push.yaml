@@ -26,3 +26,9 @@ jobs:
           branch: ${{ github.ref }}
           message: 'ci: automatically update file.txt, from ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
           files: file.txt
+
+  call-workflow:
+    name: Call on new commit
+    needs: [commit-and-push]
+    uses: ./.github/workflows/call-on-new-commit.yaml
+    secrets: inherit
