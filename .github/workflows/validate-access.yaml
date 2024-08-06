@@ -17,6 +17,7 @@ jobs:
   validate-access:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Check if the workflow is triggered by an admin user
         run: |
           echo "Checking if the workflow is triggered by an admin user"
