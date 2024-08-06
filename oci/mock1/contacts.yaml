@@ -1,0 +1,9 @@
+notify:
+  emails:
+    - username@random.email
+  mattermost-channels:
+    - aaaabbbb12345678
+
+maintainer:
+  - n6ab8
+  - nnnnn
