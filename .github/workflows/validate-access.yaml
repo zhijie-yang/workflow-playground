@@ -18,6 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: pip3 install shyaml
       - name: Check if the workflow is triggered by an admin user
         run: |
           echo "Checking if the workflow is triggered by an admin user"
