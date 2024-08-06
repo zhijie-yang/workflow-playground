@@ -40,11 +40,11 @@ jobs:
       #     message: 'ci: automatically update file.txt, from ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
       #     files: file.txt
 
-      # - name: Get commit SHA
-      #   id: commit
-      #   run: |
-      #     set -ex
-      #     echo "commit-sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Get commit SHA
+        id: commit
+        run: |
+          set -ex
+          echo "commit-sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       
 

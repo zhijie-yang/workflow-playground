@@ -22,7 +22,7 @@ jobs:
           echo "Checking if the workflow is triggered by an admin user"
           echo "github.actor: ${{ github.actor }}"
           echo "admin-only: ${{ inputs.admin-only }}"
-          echo "CODEOWNERS: $(cat CODEOWNERS)"
+          echo "CODEOWNERS: $(cat  ${{ github.workspace }}/CODEOWNERS)"
           echo "contacts.yaml: $(cat oci/contacts.yaml)"
           if [[ ${{ inputs.admin-only }} == true ]]; then
             if grep -q ${{ github.actor }} CODEOWNERS && grep -q ${{ github.actor }} oci/contacts.yaml; then
