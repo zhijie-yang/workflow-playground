@@ -22,16 +22,15 @@ jobs:
           files: |
             oci/*/*
           dir_names: 'true'
-          # Want ubuntu/20.04/cis-stig instead of ubuntu/20.04/cis-stig/src/scripts
           dir_names_max_depth: '3'
-          matrix: 'true'
+          separator: ','
       - name: List all changed images
         id: images
         run: |
           if [[ "${{ steps.changed-files.outputs.all_changed_files_count }}" == "0" ]]
           then
             # Fixed image for testing
-            paths="['oci/mock-default']"
+            paths="oci/mock-default"
           else
             paths='${{ steps.changed-files.outputs.all_changed_files }}'
             occurrences="${paths//[^,]}"
