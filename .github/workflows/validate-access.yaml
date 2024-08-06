@@ -12,6 +12,10 @@ on:
         required: true
         default: false
         type: boolean
+      image-path:
+        description: 'The path to the image to be built'
+        required: true
+        type: string
 
 jobs:
   validate-access:
@@ -28,9 +32,9 @@ jobs:
           echo "github.actor: ${{ github.actor }}"
           echo "admin-only: ${{ inputs.admin-only }}"
           echo "CODEOWNERS: $(cat  ${{ github.workspace }}/CODEOWNERS)"
-          echo "contacts.yaml: $(cat ${{ github.workspace }}/oci/mock1/contacts.yaml)"
+          echo "contacts.yaml: $(cat ${{ github.workspace }}/${{ inputs.image-path }}/contacts.yaml)"
           if [[ ${{ inputs.admin-only }} == true ]]; then
-            if grep -w "@${{ github.actor }}" ${{ github.workspace }}/CODEOWNERS || cat ${{ github.workspace }}/oci/mock1/contacts.yaml | shyaml get-value maintainer | grep -w "${{ github.actor }}"; then
+            if grep -w "@${{ github.actor }}" ${{ github.workspace }}/CODEOWNERS || cat ${{ github.workspace }}/${{ inputs.image-path }}/contacts.yaml | shyaml get-value maintainer | grep -w "${{ github.actor }}"; then
               echo "The workflow is triggered by an admin user"
             else
               echo "The workflow is not triggered by an admin user"

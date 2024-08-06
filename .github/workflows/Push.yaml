@@ -9,6 +9,44 @@ on:
   workflow_dispatch:
 
 jobs:
+  get-image-list:
+    runs-on: ubuntu-latest
+    name: List images to be released
+    outputs:
+      image-paths: ${{ steps.images.outputs.paths }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: tj-actions/changed-files@v44
+        id: changed-files
+        with:
+          files: |
+            oci/*/*
+          dir_names: 'true'
+          # Want ubuntu/20.04/cis-stig instead of ubuntu/20.04/cis-stig/src/scripts
+          dir_names_max_depth: '3'
+          matrix: 'true'
+      - name: List all changed images
+        id: images
+        run: |
+          if [[ "${{ steps.changed-files.outputs.all_changed_files_count }}" == "0" ]]
+          then
+            # Fixed image for testing
+            paths="['oci/mock-default']"
+          else
+            paths='${{ steps.changed-files.outputs.all_changed_files }}'
+            occurrences="${paths//[^,]}"
+            if [ ${#occurrences} -ne 0 ]
+            then
+              echo "ERR: can only build 1 image at a time, but trying to trigger ${paths}"
+              exit 1
+            fi
+            test -d "${paths}"
+          fi
+          echo "Changed paths: $paths"
+          echo "paths=$paths" >> $GITHUB_OUTPUT
+
+
+
   access-guard:
     uses: ./.github/workflows/validate-access.yaml
     with:
