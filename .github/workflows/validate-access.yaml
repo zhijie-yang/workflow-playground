@@ -1,0 +1,36 @@
+name: Validate Access
+
+# Checks if the workflow is triggered by an admin user
+# using the github.actor variable against the CODEOWNERS file
+# and the contacts.yaml file under oci/* path
+
+on:
+  workflow_call:
+    inputs:
+      admin-only:
+        description: 'The barriered workflow should only be triggered as admin'
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  validate-access:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if the workflow is triggered by an admin user
+        run: |
+          echo "Checking if the workflow is triggered by an admin user"
+          echo "github.actor: ${{ github.actor }}"
+          echo "admin-only: ${{ inputs.admin-only }}"
+          echo "CODEOWNERS: $(cat CODEOWNERS)"
+          echo "contacts.yaml: $(cat oci/contacts.yaml)"
+          if [[ ${{ inputs.admin-only }} == true ]]; then
+            if grep -q ${{ github.actor }} CODEOWNERS && grep -q ${{ github.actor }} oci/contacts.yaml; then
+              echo "The workflow is triggered by an admin user"
+            else
+              echo "The workflow is not triggered by an admin user"
+              exit 1
+            fi
+          else
+            echo "The workflow is not restricted to admin users"
+          fi
