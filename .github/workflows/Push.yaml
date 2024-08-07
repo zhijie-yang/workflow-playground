@@ -44,20 +44,14 @@ jobs:
           echo "Changed paths: $paths"
           echo "paths=$paths" >> $GITHUB_OUTPUT
 
-
-
-  access-guard:
-    uses: zhijie-yang/workflow-playground/.github/actions/validate-access.yaml@master
-    needs: [get-image-list]
-    secrets: inherit
-    with:
-      admin-only: true
-      image-path: ${{ needs.get-image-list.outputs.image-paths }}
+      - uses: zhijie-yang/workflow-playground/.github/actions/validate-access.yaml@master
+        with:
+          admin-only: true
+          image-path: ${{ needs.get-image-list.outputs.image-paths }}
 
 
   commit-and-push:
     runs-on: ubuntu-latest
-    needs: [access-guard]
     outputs:
       commit-sha: ${{ steps.commit.outputs.commit-sha }}
     
