@@ -4,5 +4,5 @@ notify:
   mattermost-channels:
     - aaaabbbb12345678
 
-maintainer:
+maintainers:
   - zhijie-yang

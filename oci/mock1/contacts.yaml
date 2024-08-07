@@ -4,6 +4,6 @@ notify:
   mattermost-channels:
     - aaaabbbb12345678
 
-maintainer:
+maintainers:
   - n6ab8
   - nnnnn

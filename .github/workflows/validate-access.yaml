@@ -22,10 +22,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-      - run: pip3 install shyaml
       - name: Check if the workflow is triggered by an admin user
         run: |
           echo "Checking if the workflow is triggered by an admin user"
@@ -34,7 +30,7 @@ jobs:
           echo "CODEOWNERS: $(cat  ${{ github.workspace }}/CODEOWNERS)"
           echo "contacts.yaml: $(cat ${{ github.workspace }}/${{ inputs.image-path }}/contacts.yaml)"
           if [[ ${{ inputs.admin-only }} == true ]]; then
-            if grep -w "@${{ github.actor }}" ${{ github.workspace }}/CODEOWNERS || cat ${{ github.workspace }}/${{ inputs.image-path }}/contacts.yaml | shyaml get-value maintainer | grep -w "${{ github.actor }}"; then
+            if grep -w "@${{ github.actor }}" ${{ github.workspace }}/CODEOWNERS || cat ${{ github.workspace }}/${{ inputs.image-path }}/contacts.yaml | yq ".maintainers" | grep -w "${{ github.actor }}"; then
               echo "The workflow is triggered by an admin user"
             else
               echo "The workflow is not triggered by an admin user"
