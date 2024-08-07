@@ -44,7 +44,7 @@ jobs:
           echo "Changed paths: $paths"
           echo "paths=$paths" >> $GITHUB_OUTPUT
 
-      - uses: zhijie-yang/workflow-playground/.github/actions/validate-access.yaml@master
+      - uses: zhijie-yang/workflow-playground/.github/actions/validate-access@master
         with:
           admin-only: true
           image-path: ${{ needs.get-image-list.outputs.image-paths }}
