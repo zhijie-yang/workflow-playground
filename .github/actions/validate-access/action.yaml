@@ -1,30 +1,29 @@
 name: Validate Access
-
+description: 'Check if the workflow is triggered by an admin user'
 # This callable workflow checks if the workflow is triggered by
 # a code owner or an image maintainer by testing the github.actor
 # variable against the CODEOWNERS file and the contacts.yaml file
 # under oci/* path
 
-on:
-  workflow_call:
-    inputs:
-      admin-only:
-        description: 'The protected workflow should only be triggered as a code owner or an image maintainer'
-        required: true
-        default: false
-        type: boolean
-      image-path:
-        description: 'The path to the image to be built'
-        required: true
-        type: string
+inputs:
+  admin-only:
+    description: 'The protected workflow should only be triggered as a code owner or an image maintainer'
+    required: true
+    default: 'false'
+  image-path:
+    description: 'The path to the image to be built'
+    required: true
+  github-token:
+    description: 'The GH_TOKEN for the GitHub CLI'
+    required: true
 
 runs:
   using: "composite" 
   steps:
-    - uses: actions/checkout@v4
     - name: Check if the workflow is triggered by an admin user
+      shell: bash
       env:
-        GH_TOKEN: ${{ secrets.ORG_READ_TOKEN }}
+        GH_TOKEN: ${{ inputs.github-token }}
       run: |
         echo "github.actor: ${{ github.actor }}"
         echo "admin-only: ${{ inputs.admin-only }}"
