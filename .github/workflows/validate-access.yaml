@@ -40,12 +40,14 @@ jobs:
               sed -i "s|$team|$replacement|g" ${{ github.workspace }}/CODEOWNERS
             done
 
-            if grep -wq "@${{ github.actor }}" ${{ github.workspace }}/CODEOWNERS || cat ${{ github.workspace }}/${{ inputs.image-path }}/contacts.yaml | yq ".maintainers" | grep -wq "${{ github.actor }}"; then
-              echo "The workflow is triggered by an admin user"
+            if grep -wq "@${{ github.actor }}" ${{ github.workspace }}/CODEOWNERS; then
+              echo "The workflow is triggered by ${{ github.actor }} as the code owner"
+            elif cat ${{ github.workspace }}/${{ inputs.image-path }}/contacts.yaml | yq ".maintainers" | grep -wq "${{ github.actor }}"; then
+              echo "The workflow is triggered by ${{ github.actor }} as a maintainer of the image ${{ inputs.image-path }}"
             else
-              echo "The workflow is not triggered by an admin user"
+              echo "The workflow is not triggered by a user either as a code owner or a maintainer of the image ${{ inputs.image-path }}"
               exit 1
             fi
           else
-            echo "The workflow is not restricted to admin users"
+            echo "The workflow is not restricted to non-code-owner or non-maintainer users"
           fi
