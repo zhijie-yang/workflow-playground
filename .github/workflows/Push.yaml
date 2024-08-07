@@ -7,6 +7,12 @@ on:
     branches:
       - master
   workflow_dispatch:
+    inputs:
+      admin-only:
+        description: 'The protected workflow should only be triggered as a code owner or an image maintainer'
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   get-image-list:
@@ -46,7 +52,7 @@ jobs:
 
       - uses: zhijie-yang/workflow-playground/.github/actions/validate-access@master
         with:
-          admin-only: true
+          admin-only: false
           image-path: ${{ steps.images.outputs.paths }}
           github-token: ${{ secrets.ORG_READ_TOKEN }}
 
