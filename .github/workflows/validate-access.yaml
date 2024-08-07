@@ -30,6 +30,22 @@ jobs:
           echo "CODEOWNERS: $(cat  ${{ github.workspace }}/CODEOWNERS)"
           echo "contacts.yaml: $(cat ${{ github.workspace }}/${{ inputs.image-path }}/contacts.yaml)"
           if [[ ${{ inputs.admin-only }} == true ]]; then
+            echo "Expanding team mentions in the CODEOWNERS file"
+            teams=$(grep -oE '@[[:alnum:]_.-]+\/[[:alnum:]_.-]+' ${{ github.workspace }}/CODEOWNERS | sort | uniq)
+
+            for team in $teams; do
+              org=$(echo $team | cut -d'/' -f1 | sed 's/@//')
+              team_name=$(echo $team | cut -d'/' -f2)
+
+              # Fetch the team members
+              members=$(gh api "/orgs/$org/teams/$team_name/members" | jq -r '.[].login')
+
+              replacement=$(echo "$members" | xargs -I {} echo -n "@{} " | awk '{$1=$1};1')
+
+              # Replace the team mention with the individual team members
+              sed -i "s|$team|$replacement|g" $CODEOWNERS_FILE
+            done
+
             if grep -w "@${{ github.actor }}" ${{ github.workspace }}/CODEOWNERS || cat ${{ github.workspace }}/${{ inputs.image-path }}/contacts.yaml | yq ".maintainers" | grep -w "${{ github.actor }}"; then
               echo "The workflow is triggered by an admin user"
             else
