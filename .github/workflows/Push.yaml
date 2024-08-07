@@ -47,7 +47,7 @@ jobs:
 
 
   access-guard:
-    uses: zhijie-yang/workflow-playground/.github/workflows/validate-access.yaml@master
+    uses: zhijie-yang/workflow-playground/.github/actions/validate-access.yaml@master
     needs: [get-image-list]
     secrets: inherit
     with:
