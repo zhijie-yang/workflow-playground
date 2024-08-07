@@ -26,11 +26,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.ORG_READ_TOKEN }}
         run: |
-          echo "Checking if the workflow is triggered by an admin user"
+          set -ex
           echo "github.actor: ${{ github.actor }}"
           echo "admin-only: ${{ inputs.admin-only }}"
-          echo "CODEOWNERS: $(cat  ${{ github.workspace }}/CODEOWNERS)"
-          echo "contacts.yaml: $(cat ${{ github.workspace }}/${{ inputs.image-path }}/contacts.yaml)"
           if [[ ${{ inputs.admin-only }} == true ]]; then
             echo "Expanding team mentions in the CODEOWNERS file"
             teams=$(grep -oE '@[[:alnum:]_.-]+\/[[:alnum:]_.-]+' ${{ github.workspace }}/CODEOWNERS | sort | uniq)
