@@ -49,6 +49,7 @@ jobs:
   access-guard:
     uses: ./.github/workflows/validate-access.yaml
     needs: [get-image-list]
+    secrets: inherit
     with:
       admin-only: true
       image-path: ${{ needs.get-image-list.outputs.image-paths }}
