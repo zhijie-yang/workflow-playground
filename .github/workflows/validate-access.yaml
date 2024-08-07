@@ -23,6 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check if the workflow is triggered by an admin user
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Checking if the workflow is triggered by an admin user"
           echo "github.actor: ${{ github.actor }}"
@@ -36,13 +38,8 @@ jobs:
             for team in $teams; do
               org=$(echo $team | cut -d'/' -f1 | sed 's/@//')
               team_name=$(echo $team | cut -d'/' -f2)
-
-              # Fetch the team members
               members=$(gh api "/orgs/$org/teams/$team_name/members" | jq -r '.[].login')
-
               replacement=$(echo "$members" | xargs -I {} echo -n "@{} " | awk '{$1=$1};1')
-
-              # Replace the team mention with the individual team members
               sed -i "s|$team|$replacement|g" $CODEOWNERS_FILE
             done
 
