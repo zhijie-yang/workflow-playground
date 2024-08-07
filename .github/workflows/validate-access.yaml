@@ -1,14 +1,15 @@
 name: Validate Access
 
-# Checks if the workflow is triggered by an admin user
-# using the github.actor variable against the CODEOWNERS file
-# and the contacts.yaml file under oci/* path
+# This callable workflow checks if the workflow is triggered by
+# a code owner or an image maintainer by testing the github.actor
+# variable against the CODEOWNERS file and the contacts.yaml file
+# under oci/* path
 
 on:
   workflow_call:
     inputs:
       admin-only:
-        description: 'The barriered workflow should only be triggered as admin'
+        description: 'The protected workflow should only be triggered as a code owner or an image maintainer'
         required: true
         default: false
         type: boolean
