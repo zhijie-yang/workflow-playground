@@ -47,7 +47,8 @@ jobs:
       - uses: zhijie-yang/workflow-playground/.github/actions/validate-access@master
         with:
           admin-only: true
-          image-path: ${{ needs.get-image-list.outputs.image-paths }}
+          image-path: ${{ steps.images.outputs.paths }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
 
   commit-and-push:
