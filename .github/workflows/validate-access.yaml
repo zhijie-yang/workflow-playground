@@ -26,7 +26,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.ORG_READ_TOKEN }}
         run: |
-          set -ex
           echo "github.actor: ${{ github.actor }}"
           echo "admin-only: ${{ inputs.admin-only }}"
           if [[ ${{ inputs.admin-only }} == true ]]; then
