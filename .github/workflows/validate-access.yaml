@@ -38,7 +38,7 @@ jobs:
               team_name=$(echo $team | cut -d'/' -f2)
               members=$(gh api "/orgs/$org/teams/$team_name/members" | jq -r '.[].login')
               replacement=$(echo "$members" | xargs -I {} echo -n "@{} " | awk '{$1=$1};1')
-              sed -i "s|$team|$replacement|g" $CODEOWNERS_FILE
+              sed -i "s|$team|$replacement|g" ${{ github.workspace }}/CODEOWNERS
             done
 
             if grep -w "@${{ github.actor }}" ${{ github.workspace }}/CODEOWNERS || cat ${{ github.workspace }}/${{ inputs.image-path }}/contacts.yaml | yq ".maintainers" | grep -w "${{ github.actor }}"; then
