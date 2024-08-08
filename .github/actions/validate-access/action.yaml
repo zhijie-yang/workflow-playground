@@ -9,7 +9,7 @@ inputs:
   admin-only:
     description: 'The protected workflow should only be triggered as a code owner or an image maintainer'
     required: true
-    default: 'false'
+    default: 'true'
   image-path:
     description: 'The path to the image to be built'
     required: true
