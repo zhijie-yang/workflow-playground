@@ -52,7 +52,7 @@ jobs:
 
       - uses: ./.github/actions/validate-access
         with:
-          admin-only: false
+          admin-only: true
           image-path: ${{ steps.images.outputs.paths }}
           github-token: ${{ secrets.ORG_READ_TOKEN }}
 
