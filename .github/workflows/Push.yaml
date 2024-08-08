@@ -50,7 +50,7 @@ jobs:
           echo "Changed paths: $paths"
           echo "paths=$paths" >> $GITHUB_OUTPUT
 
-      - uses: .github/actions/validate-access/
+      - uses: ./.github/actions/validate-access
         with:
           admin-only: false
           image-path: ${{ steps.images.outputs.paths }}
