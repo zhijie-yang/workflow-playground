@@ -50,6 +50,8 @@ jobs:
           echo "Changed paths: $paths"
           echo "paths=$paths" >> $GITHUB_OUTPUT
 
+      - run: echo "${{ github.event_name }}"
+
       - uses: ./.github/actions/validate-access
         with:
           admin-only: true
