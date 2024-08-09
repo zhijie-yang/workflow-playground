@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.commit-sha }}
-      - uses: ./github/actions/validate-access
+      - uses: ./.github/actions/validate-access
         if: ${{ inputs.is_workflow_call }}
         with:
           admin-only: true
