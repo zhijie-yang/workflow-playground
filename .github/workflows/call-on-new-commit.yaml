@@ -27,7 +27,8 @@ jobs:
           ref: ${{ inputs.commit-sha }}
       - run: echo "is workflow call ${{ inputs.is_workflow_call }}" 
       - uses: ./.github/actions/validate-access
-        if: ${{ inputs.is_workflow_call }}
+        # runs if is_workflow_call is not true
+        if: ${{ !inputs.is_workflow_call }}
         with:
           admin-only: true
           image-path: oci/mock-default
