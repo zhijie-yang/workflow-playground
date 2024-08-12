@@ -24,4 +24,4 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
-      run: ./.github/actions/validate-access.sh ${{ github.actor }} ${{ inputs.admin-only }} ${{ github.workspace }}  ${{ inputs.image-path }}
+      run: ./.github/actions/validate-access/validate-access.sh ${{ github.actor }} ${{ inputs.admin-only }} ${{ github.workspace }}  ${{ inputs.image-path }}
