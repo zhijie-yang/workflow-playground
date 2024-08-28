@@ -90,6 +90,7 @@ jobs:
       - name: Create Markdown Content
         id: create-markdown
         run: |
+          set -x
           echo "## CVEs found for ${{ inputs.oci-image-name }}" > issue.md
           echo "| Package | CVE | Severity |" >> issue.md
           echo "| ------- | --- | -------- |" >> issue.md
