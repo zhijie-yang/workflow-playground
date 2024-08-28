@@ -72,6 +72,7 @@ jobs:
       - id: simplify-image-name
         run: |
           img_name=$(echo "${{ inputs.oci-image-name }}" | sed -r 's|.*/([a-zA-Z0-9-]+:[0-9.-]+)_[0-9]+|\1|')
+          echo "img_name=$img_name" >> "$GITHUB_OUTPUT"
 
       # We assume that the sources within image.yaml are the same
       - name: Get image repo
