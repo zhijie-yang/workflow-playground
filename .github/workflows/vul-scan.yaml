@@ -92,9 +92,9 @@ jobs:
         run: |
           set -x
           echo "## CVEs found for ${{ steps.simplify-image-name.outputs.img_name }}" > issue.md
-          echo "| Package | CVE | Severity |" >> issue.md
-          echo "| ------- | --- | -------- |" >> issue.md
-          echo '${{ needs.test-vulnerabilities.outputs.vulnerabilities }}' | jq -r '.[] | "| \(.PkgName) | \(.VulnerabilityID) | \(.Severity) |"' >> issue.md
+          echo "| ID | Severity | Package |" >> issue.md
+          echo "| -- | -------- | ------- |" >> issue.md
+          echo '${{ needs.test-vulnerabilities.outputs.vulnerabilities }}' | jq -r '.[] | "| \(.VulnerabilityID) | \(.Severity) | \(.PkgName) |"' >> issue.md
           echo -e "\nDetails: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> issue.md
           echo "issue-body-file=issue.md" >> "$GITHUB_OUTPUT"
           num_vulns=$(echo '${{ needs.test-vulnerabilities.outputs.vulnerabilities }}' | jq -r 'length')
