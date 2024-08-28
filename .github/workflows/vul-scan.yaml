@@ -12,10 +12,6 @@ on:
         description: 'Path to the image in this repo (eg. "oci/foo")'
         required: true
         type: string
-      report-path:
-        description: 'Path to the vulnerability report'
-        required: true
-        type: string
       date-last-scan:
         description: 'If there are new CVEs after this date, we notify'
         required: false
@@ -34,10 +30,11 @@ jobs:
       vulnerabilities: ${{ steps.check-report.outputs.vulnerabilities }}
     runs-on: ubuntu-22.04
     steps:
+      - uses: actions/checkout@v4
       - name: Process report
         id: check-report
         run: |
-          report="${{ inputs.report-path }}"
+          report="${{ github.workspace }}/vuls-report.json"
           cat $report
           echo "notify=false" >> "$GITHUB_OUTPUT"
           set -x
