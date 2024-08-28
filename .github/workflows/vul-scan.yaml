@@ -35,7 +35,6 @@ jobs:
         id: check-report
         run: |
           report="${{ github.workspace }}/report.json"
-          cat $report
           echo "notify=false" >> "$GITHUB_OUTPUT"
           set -x
           vulnerabilities="$(jq -r '[
@@ -83,7 +82,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          issue_number=$(gh issue list --repo github.com/zhijie-yang/workflow-playground --json "number,title"
+          issue_number=$(gh issue list --repo github.com/zhijie-yang/workflow-playground --json "number,title" \
                   | jq -r '.[] | select(.title == "CVEs found for ${{ inputs.oci-image-name }}") | .number')
           echo "issue-exists=$([[ -n "$issue_number" ]] && echo 'true' || echo 'false')" >> "$GITHUB_OUTPUT"
           echo "issue-number=$issue_number" >> "$GITHUB_OUTPUT"
