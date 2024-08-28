@@ -97,8 +97,8 @@ jobs:
           echo "${{ needs.test-vulnerabilities.outputs.vulnerabilities }}" | jq -r '.[] | "| \(.VulnerabilityID) | \(.PkgName) | \(.Severity) |"' >> issue.md
           echo -e "\nDetails: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> issue.md
           echo "issue-body-file=issue.md" >> "$GITHUB_OUTPUT"
-          echo $vuls | grep -q "VulnerabilityID"
-          echo "vulnerability-exists=$(( $? == 0 ))" >> "$GITHUB_OUTPUT"
+          num_vulns=$(echo "${{ needs.test-vulnerabilities.outputs.vulnerabilities }}" | jq -r 'length')
+          echo "vulnerability-exists=$([[ $num_vulns -gt 0 ]] && echo 'true' || echo 'false')" >> "$GITHUB_OUTPUT"
       
       - name: Create issue
         if: ${{ steps.issue-exists.outputs.issue-exists == 'false' && steps.create-markdown.outputs.vulnerability-exists == '1' }}
