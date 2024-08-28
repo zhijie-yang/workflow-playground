@@ -52,24 +52,26 @@ jobs:
 
       - run: echo "${{ github.event_name }}"
 
-      - uses: ./.github/actions/validate-access
-        with:
-          admin-only: true
-          image-path: ${{ steps.images.outputs.paths }}
-          github-token: ${{ secrets.ORG_READ_TOKEN }}
+  vul-scan:
+    name: Vulnerability scan
+    uses: ./.github/workflows/vul-scan.yaml
+    with:
+      oci-image-path: "oci/grafana-agent"
+      oci-image-name: "ghcr.io/zhijie-yang/oci-factory/grafana-agent:0.40.2-22.04_70"
+      date-last-scan: "2022-03-01T00:00:00Z"
+      report-path: "oci/grafana-agent/scan-report.json"
 
-
-  commit-and-push:
-    runs-on: ubuntu-latest
-    outputs:
-      commit-sha: ${{ steps.commit.outputs.commit-sha }}
+  # commit-and-push:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     commit-sha: ${{ steps.commit.outputs.commit-sha }}
     
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
     
 
-      - run: |
-          echo $(date)
+  #     - run: |
+  #         echo $(date)
     
       # - name: Add time stamp
       #   run: |
@@ -83,11 +85,11 @@ jobs:
       #     message: 'ci: automatically update file.txt, from ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
       #     files: file.txt
 
-      - name: Get commit SHA
-        id: commit
-        run: |
-          set -ex
-          echo "commit-sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      # - name: Get commit SHA
+      #   id: commit
+      #   run: |
+      #     set -ex
+      #     echo "commit-sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       
 

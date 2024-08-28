@@ -1,0 +1,118 @@
+name: Vulnerability Scan
+run-name: 'Tests - ${{ inputs.oci-image-name }} - ${{ github.ref }}'
+
+on:
+  workflow_call:
+    inputs:
+      oci-image-name:
+        description: 'Name of the image to be fetched and tested'
+        required: true
+        type: string
+      oci-image-path:
+        description: 'Path to the image in this repo (eg. "oci/foo")'
+        required: true
+        type: string
+      report-path:
+        description: 'Path to the vulnerability report'
+        required: true
+        type: string
+      date-last-scan:
+        description: 'If there are new CVEs after this date, we notify'
+        required: false
+        type: string
+        default: '9999-12-31T23:59:59'
+
+env:
+  TEST_IMAGE_NAME: 'test-img'
+  TEST_IMAGE_TAG: 'test'
+  SKOPEO_IMAGE: 'quay.io/skopeo/stable:v1.15.1'
+
+jobs:
+  test-vulnerabilities:
+    outputs:
+      notify: ${{ steps.check-report.outputs.notify }}
+      vulnerabilities: ${{ steps.check-report.outputs.vulnerabilities }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Process report
+        id: check-report
+        run: |
+          report="${{ inputs.report-path }}"
+          cat $report
+          echo "notify=false" >> "$GITHUB_OUTPUT"
+          set -x
+          vulnerabilities="$(jq -r '[
+                  try(.scanner.result.Results[].Vulnerabilities)
+                  | select(. != null) 
+                  | .[]
+                  | {LastModifiedDate: .LastModifiedDate, VulnerabilityID: .VulnerabilityID, PkgName: .PkgName, Severity: .Severity}
+                  | select(.LastModifiedDate != null)
+                ]' < $report)"
+          echo "vulnerabilities=$vulnerabilities" >> "$GITHUB_OUTPUT"
+          last_modified_dates="$(echo "$vulnerabilities" | jq -r '.[].LastModifiedDate')"
+
+          # We want to notify only if the CVEs have been updated since the last
+          # time this scan ran
+          for cve_updated in $last_modified_dates
+          do
+            if [[ "$cve_updated" > "${{ inputs.date-last-scan }}" ]]
+            then
+              echo "notify=true" >> "$GITHUB_OUTPUT"
+              break
+            fi
+          done
+
+  issue:
+    runs-on: ubuntu-22.04
+    name: Create issue
+    needs:
+      - test-vulnerabilities
+    if: ${{ !cancelled() }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: simplify-image-name
+        run: |
+          img_name=$(echo "${{ inputs.oci-image-name }}" | sed -r 's|.*/([a-zA-Z0-9-]+:[0-9.-]+)_[0-9]+|\1|')
+
+      # We assume that the sources within image.yaml are the same
+      - name: Get image repo
+        id: get-image-repo
+        run: |
+          img_repo=$(yq -r '.upload.[].source' ${{ inputs.oci-image-path }}/image.yaml | head -n 1)
+          echo "img-repo=$img_repo" >> "$GITHUB_OUTPUT"
+
+      - id: issue-exists
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          issue_number=$(gh issue list --repo github.com/zhijie-yang/workflow-playground --json "number,title"
+                  | jq -r '.[] | select(.title == "CVEs found for ${{ inputs.oci-image-name }}") | .number')
+          echo "issue-exists=$([[ -n "$issue_number" ]] && echo 'true' || echo 'false')" >> "$GITHUB_OUTPUT"
+          echo "issue-number=$issue_number" >> "$GITHUB_OUTPUT"
+
+      - name: Create Markdown Content
+        id: create-markdown
+        run: |
+          echo "## CVEs found for ${{ inputs.oci-image-name }}" > issue.md
+          echo "| Package | CVE | Severity |" >> issue.md
+          echo "| ------- | --- | -------- |" >> issue.md
+          echo "${{ needs.test-vulnerabilities.outputs.vulnerabilities }}" | jq -r '.[] | "| \(.VulnerabilityID) | \(.PkgName) | \(.Severity) |"' >> issue.md
+          echo -e "\nDetails: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> issue.md
+          echo "issue-body-file=issue.md" >> "$GITHUB_OUTPUT"
+          echo $vuls | grep -q "VulnerabilityID"
+          echo "vulnerability-exists=$(( $? == 0 ))" >> "$GITHUB_OUTPUT"
+      
+      - name: Create issue
+        if: ${{ steps.issue-exists.outputs.issue-exists == 'false' && steps.create-markdown.outputs.vulnerability-exists == '1' }}
+        run: |
+          gh issue create --repo ${{ steps.get-image-repo.outputs.img-repo }} \
+            --title "CVEs found for ${{ inputs.oci-image-name }}" \
+            --body-file "${{ steps.create-markdown.outputs.issue-body-file }}" \
+            --label 'security'
+
+      - name: Update issue
+        if: ${{ steps.issue-exists.outputs.issue-exists == 'true' && needs.test-vulnerabilities.outputs.notify == 'true' }}
+        run: |
+          gh issue edit ${{ steps.issue-exists.outputs.issue-number }} --repo ${{ steps.get-image-repo.outputs.img-repo }} \
+            --body-file "${{ steps.create-markdown.outputs.issue-body-file }}" \
