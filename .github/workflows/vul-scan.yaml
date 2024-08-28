@@ -46,7 +46,7 @@ jobs:
                 ]' < $report)"
           echo "vulnerabilities=$vulnerabilities" >> "$GITHUB_OUTPUT"
           last_modified_dates="$(echo "$vulnerabilities" | jq -r '.[].LastModifiedDate')"
-          echo "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
           # We want to notify only if the CVEs have been updated since the last
           # time this scan ran
           for cve_updated in $last_modified_dates
