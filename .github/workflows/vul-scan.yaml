@@ -83,7 +83,7 @@ jobs:
       - id: issue-exists
         run: |
           issue_number=$(gh issue list --repo github.com/zhijie-yang/workflow-playground --json "number,title" \
-                  | jq -r '.[] | select(.title == "CVEs found for ${{ inputs.oci-image-name }}") | .number')
+                  | jq -r '.[] | select(.title == "CVEs found for ${{ steps.simplify-image-name.outputs.img_name }}") | .number')
           echo "issue-exists=$([[ -n "$issue_number" ]] && echo 'true' || echo 'false')" >> "$GITHUB_OUTPUT"
           echo "issue-number=$issue_number" >> "$GITHUB_OUTPUT"
 
@@ -91,7 +91,7 @@ jobs:
         id: create-markdown
         run: |
           set -x
-          echo "## CVEs found for ${{ inputs.oci-image-name }}" > issue.md
+          echo "## CVEs found for ${{ steps.simplify-image-name.outputs.img_name }}" > issue.md
           echo "| Package | CVE | Severity |" >> issue.md
           echo "| ------- | --- | -------- |" >> issue.md
           echo '${{ needs.test-vulnerabilities.outputs.vulnerabilities }}' | jq -r '.[] | "| \(.VulnerabilityID) | \(.PkgName) | \(.Severity) |"' >> issue.md
@@ -104,9 +104,8 @@ jobs:
         if: ${{ steps.issue-exists.outputs.issue-exists == 'false' && steps.create-markdown.outputs.vulnerability-exists == 'true' }}
         run: |
           gh issue create --repo ${{ steps.get-image-repo.outputs.img-repo }} \
-            --title "CVEs found for ${{ inputs.oci-image-name }}" \
+            --title "CVEs found for ${{ steps.simplify-image-name.outputs.img_name }}" \
             --body-file "${{ steps.create-markdown.outputs.issue-body-file }}" \
-            --label 'security'
 
       - name: Update issue
         if: ${{ steps.issue-exists.outputs.issue-exists == 'true' && needs.test-vulnerabilities.outputs.notify == 'true' }}
