@@ -34,7 +34,7 @@ jobs:
       - name: Process report
         id: check-report
         run: |
-          report="${{ github.workspace }}/vuls-report.json"
+          report="${{ github.workspace }}/report.json"
           cat $report
           echo "notify=false" >> "$GITHUB_OUTPUT"
           set -x
