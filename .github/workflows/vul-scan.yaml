@@ -75,7 +75,7 @@ jobs:
       - name: Get image repo
         id: get-image-repo
         run: |
-          img_repo=$(yq -r '.upload.[].source' ${{ inputs.oci-image-path }}/image.yaml | head -n 1)
+          img_repo=$(yq -r '.upload.[].source' ${{ github.workspace }}/${{ inputs.oci-image-path }}/image.yaml | head -n 1)
           echo "img-repo=$img_repo" >> "$GITHUB_OUTPUT"
 
       - id: issue-exists
