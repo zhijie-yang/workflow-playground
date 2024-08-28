@@ -37,14 +37,14 @@ jobs:
           report="${{ github.workspace }}/report.json"
           echo "notify=false" >> "$GITHUB_OUTPUT"
           set -x
-          vulnerabilities="$(jq '[
+          vulnerabilities="$(jq -r -c '[
                   try(.scanner.result.Results[].Vulnerabilities)
                   | select(. != null) 
                   | .[]
                   | {LastModifiedDate: .LastModifiedDate, VulnerabilityID: .VulnerabilityID, PkgName: .PkgName, Severity: .Severity}
                   | select(.LastModifiedDate != null)
                 ]' < $report)"
-          echo "vulnerabilities=$vulnerabilities" >> "$GITHUB_OUTPUT"
+          echo "vulnerabilities='$vulnerabilities'" >> "$GITHUB_OUTPUT"
           last_modified_dates="$(echo "$vulnerabilities" | jq -r '.[].LastModifiedDate')"
           cat "$GITHUB_OUTPUT"
           # We want to notify only if the CVEs have been updated since the last
