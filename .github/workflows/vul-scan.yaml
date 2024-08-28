@@ -61,6 +61,8 @@ jobs:
   issue:
     runs-on: ubuntu-22.04
     name: Create issue
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     needs:
       - test-vulnerabilities
     if: ${{ !cancelled() }}
@@ -79,8 +81,6 @@ jobs:
           echo "img-repo=$img_repo" >> "$GITHUB_OUTPUT"
 
       - id: issue-exists
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           issue_number=$(gh issue list --repo github.com/zhijie-yang/workflow-playground --json "number,title" \
                   | jq -r '.[] | select(.title == "CVEs found for ${{ inputs.oci-image-name }}") | .number')
