@@ -93,10 +93,10 @@ jobs:
 
       
 
-  call-workflow:
-    name: Call on new commit
-    needs: [commit-and-push]
-    uses: ./.github/workflows/call-on-new-commit.yaml
-    with:
-      commit-sha: ${{ needs.commit-and-push.outputs.commit-sha }}
-    secrets: inherit
+  # call-workflow:
+  #   name: Call on new commit
+  #   needs: [commit-and-push]
+  #   uses: ./.github/workflows/call-on-new-commit.yaml
+  #   with:
+  #     commit-sha: ${{ needs.commit-and-push.outputs.commit-sha }}
+  #   secrets: inherit
