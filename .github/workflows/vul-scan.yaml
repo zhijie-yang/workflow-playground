@@ -101,7 +101,7 @@ jobs:
           echo "vulnerability-exists=$([[ $num_vulns -gt 0 ]] && echo 'true' || echo 'false')" >> "$GITHUB_OUTPUT"
       
       - name: Create issue
-        if: ${{ steps.issue-exists.outputs.issue-exists == 'false' && steps.create-markdown.outputs.vulnerability-exists == '1' }}
+        if: ${{ steps.issue-exists.outputs.issue-exists == 'false' && steps.create-markdown.outputs.vulnerability-exists == 'true' }}
         run: |
           gh issue create --repo ${{ steps.get-image-repo.outputs.img-repo }} \
             --title "CVEs found for ${{ inputs.oci-image-name }}" \
