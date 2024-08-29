@@ -43,7 +43,8 @@ jobs:
                   | .Vulnerabilities
                   | select(. != null)
                   | .[]
-                  | {Target: $target, LastModifiedDate: .LastModifiedDate, VulnerabilityID: .VulnerabilityID, PkgName: .PkgName, Severity: .Severity}
+                  | {Target: $target, LastModifiedDate: .LastModifiedDate, VulnerabilityID: .VulnerabilityID,
+                     PkgName: .PkgName, Severity: .Severity}
                 ]' < $report)"
           echo "vulnerabilities=$vulnerabilities" >> "$GITHUB_OUTPUT"
           last_modified_dates="$(echo "$vulnerabilities" | jq -r '.[] | select(.LastModifiedDate != null) | .LastModifiedDate')"
