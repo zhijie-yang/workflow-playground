@@ -58,7 +58,7 @@ jobs:
     with:
       oci-image-path: "oci/grafana-agent"
       oci-image-name: "ghcr.io/zhijie-yang/oci-factory/grafana-agent:0.40.2-22.04_70"
-      date-last-scan: "2024-08-29T00:00:00Z"
+      date-last-scan: "2022-03-01T00:00:00Z"
 
   # commit-and-push:
   #   runs-on: ubuntu-latest
