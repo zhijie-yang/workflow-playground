@@ -80,35 +80,58 @@ jobs:
           img_repo=$(yq -r '.upload.[].source' ${{ github.workspace }}/${{ inputs.oci-image-path }}/image.yaml | head -n 1)
           echo "img-repo=$img_repo" >> "$GITHUB_OUTPUT"
 
-      - id: issue-exists
-        run: |
-          issue_number=$(gh issue list --repo github.com/zhijie-yang/workflow-playground --json "number,title" \
-                  | jq -r '.[] | select(.title == "Vulnerabilities found for ${{ steps.simplify-image-name.outputs.img_name }}") | .number')
-          echo "issue-exists=$([[ -n "$issue_number" ]] && echo 'true' || echo 'false')" >> "$GITHUB_OUTPUT"
-          echo "issue-number=$issue_number" >> "$GITHUB_OUTPUT"
-
       - name: Create Markdown Content
         id: create-markdown
         run: |
           set -x
-          echo "## Vulnerabilities found for ${{ steps.simplify-image-name.outputs.img_name }}" > issue.md
+          title="Vulnerabilities found for ${{ steps.simplify-image-name.outputs.img_name }}"
+          echo "## $title" > issue.md
           echo "| ID | Severity | Package |" >> issue.md
           echo "| -- | -------- | ------- |" >> issue.md
           echo '${{ needs.test-vulnerabilities.outputs.vulnerabilities }}' | jq -r '.[] | "| \(.VulnerabilityID) | \(.Severity) | \(.PkgName) |"' >> issue.md
           echo -e "\nDetails: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> issue.md
-          echo "issue-body-file=issue.md" >> "$GITHUB_OUTPUT"
           num_vulns=$(echo '${{ needs.test-vulnerabilities.outputs.vulnerabilities }}' | jq -r 'length')
+          echo "issue-title=$title" >> "$GITHUB_OUTPUT"
+          echo "issue-body-file=issue.md" >> "$GITHUB_OUTPUT"
           echo "vulnerability-exists=$([[ $num_vulns -gt 0 ]] && echo 'true' || echo 'false')" >> "$GITHUB_OUTPUT"
+
+      - id: issue-exists
+        run: |
+          issue_number=$(gh issue list --repo github.com/zhijie-yang/workflow-playground --json "number,title" \
+                  | jq -r '.[] | select(.title == "${{ steps.create-markdown.outputs.issue-title }}") | .number')
+          echo "issue-exists=$([[ -n "$issue_number" ]] && echo 'true' || echo 'false')" >> "$GITHUB_OUTPUT"
+          echo "issue-number=$issue_number" >> "$GITHUB_OUTPUT"
+
+
+      # Truth table for issue creation
+      # | issue-exists | notify | vulnerability-exists |   op   |
+      # |--------------|--------|----------------------|--------|
+      # |      T       |   T    |          T           | update |
+      # |      T       |   T    |          F           |  never |
+      # |      T       |   F    |          T           |   nop  |
+      # |      T       |   F    |          F           |  close |
+      # |      F       |   T    |          T           | create |
+      # |      F       |   T    |          F           |  never |
+      # |      F       |   F    |          T           | create |
+      # |      F       |   F    |          F           |   nop  |
       
       - name: Create issue
-        if: ${{ steps.issue-exists.outputs.issue-exists == 'false' && steps.create-markdown.outputs.vulnerability-exists == 'true' }}
+        if: ${{ steps.create-markdown.outputs.vulnerability-exists == 'true' }}
         run: |
-          gh issue create --repo ${{ steps.get-image-repo.outputs.img-repo }} \
-            --title "Vulnerabilities found for ${{ steps.simplify-image-name.outputs.img_name }}" \
-            --body-file "${{ steps.create-markdown.outputs.issue-body-file }}" \
+          set -x
+          op=nop
+          if [[ ${{ steps.create-markdown.outputs.vulnerability-exists }} == 'true' && ${{ steps.issue-exists.outputs.issue-exists }}  == 'false' ]]; do
+            op="create"
+          elif [[ ${{ steps.issue-exists.outputs.issue-exists }} == 'true' && ${{ needs.test-vulnerabilities.outputs.notify }} == 'true' ]]; do
+            op="update ${{ steps.issue-exists.outputs.issue-number }}"
+          fi
+          if [[ $op != 'nop' ]]; do
+            gh issue $op --repo ${{ steps.get-image-repo.outputs.img-repo }} \
+              --title "Vulnerabilities found for ${{ steps.simplify-image-name.outputs.img_name }}" \
+              --body-file "${{ steps.create-markdown.outputs.issue-body-file }}"
+          fi
 
-      - name: Update issue
-        if: ${{ steps.issue-exists.outputs.issue-exists == 'true' && needs.test-vulnerabilities.outputs.notify == 'true' }}
+      - name: Close issue
+        if: ${{ steps.issue-exists.outputs.issue-exists == 'true' && needs.test-vulnerabilities.outputs.notify == 'false' }}
         run: |
-          gh issue edit ${{ steps.issue-exists.outputs.issue-number }} --repo ${{ steps.get-image-repo.outputs.img-repo }} \
-            --body-file "${{ steps.create-markdown.outputs.issue-body-file }}" \
+          gh issue close ${{ steps.issue-exists.outputs.issue-number }} --repo ${{ steps.get-image-repo.outputs.img-repo }}
