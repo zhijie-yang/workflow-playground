@@ -121,8 +121,7 @@ jobs:
         run: |
           set -x
           op=nop
-          if [[ ${{ steps.create-markdown.outputs.vulnerability-exists }} == 'true' \
-                && ${{ steps.issue-exists.outputs.issue-exists }}  == 'false' ]]; then
+          if [[ ${{ steps.issue-exists.outputs.issue-exists }}  == 'false' ]]; then
             op="create"
           elif [[ ${{ steps.issue-exists.outputs.issue-exists }} == 'true' \
                   && ${{ needs.test-vulnerabilities.outputs.notify }} == 'true' ]]; then
