@@ -38,10 +38,12 @@ jobs:
           echo "notify=false" >> "$GITHUB_OUTPUT"
           set -x
           vulnerabilities="$(jq -r -c '[
-                  try(.scanner.result.Results[].Vulnerabilities)
-                  | select(. != null) 
+                  try(.scanner.result.Results[])
+                  | .Target as $target
+                  | .Vulnerabilities
+                  | select(. != null)
                   | .[]
-                  | {LastModifiedDate: .LastModifiedDate, VulnerabilityID: .VulnerabilityID, PkgName: .PkgName, Severity: .Severity}
+                  | {Target: $target, LastModifiedDate: .LastModifiedDate, VulnerabilityID: .VulnerabilityID, PkgName: .PkgName, Severity: .Severity}
                 ]' < $report)"
           echo "vulnerabilities=$vulnerabilities" >> "$GITHUB_OUTPUT"
           last_modified_dates="$(echo "$vulnerabilities" | jq -r '.[] | select(.LastModifiedDate != null) | .LastModifiedDate')"
@@ -87,9 +89,9 @@ jobs:
           set -x
           title="Vulnerabilities found for ${{ steps.simplify-image-name.outputs.img_name }}"
           echo "## $title" > issue.md
-          echo "| ID | Severity | Package |" >> issue.md
-          echo "| -- | -------- | ------- |" >> issue.md
-          echo '${{ needs.test-vulnerabilities.outputs.vulnerabilities }}' | jq -r '.[] | "| \(.VulnerabilityID) | \(.Severity) | \(.PkgName) |"' >> issue.md
+          echo "| ID | Target |Severity | Package |" >> issue.md
+          echo "| -- | ----- | -------- | ------- |" >> issue.md
+          echo '${{ needs.test-vulnerabilities.outputs.vulnerabilities }}' | jq -r '.[] | "| \(.VulnerabilityID) | /\(.Target) | \(.Severity) | \(.PkgName) |"' >> issue.md
           echo -e "\nDetails: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> issue.md
           num_vulns=$(echo '${{ needs.test-vulnerabilities.outputs.vulnerabilities }}' | jq -r 'length')
           echo "issue-title=$title" >> "$GITHUB_OUTPUT"
@@ -134,6 +136,6 @@ jobs:
           fi
 
       - name: Close issue
-        if: ${{ steps.issue-exists.outputs.issue-exists == 'true' && needs.test-vulnerabilities.outputs.notify == 'false' }}
+        if: ${{ steps.issue-exists.outputs.issue-exists == 'true' && steps.create-markdown.outputs.vulnerability-exists == 'false' }}
         run: |
           gh issue close ${{ steps.issue-exists.outputs.issue-number }} --repo ${{ steps.get-image-repo.outputs.img-repo }}
