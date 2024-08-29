@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-22.04
     name: Create issue
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.ORG_READ_TOKEN }}
     needs:
       - test-vulnerabilities
     if: ${{ !cancelled() }}
