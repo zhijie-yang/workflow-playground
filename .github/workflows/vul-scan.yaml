@@ -80,6 +80,7 @@ jobs:
           img_repo=$(yq -r '.upload.[].source' ${{ github.workspace }}/${{ inputs.oci-image-path }}/image.yaml | head -n 1)
           echo "img-repo=$img_repo" >> "$GITHUB_OUTPUT"
 
+      # We have to walk through the vulnerabilities since trivy does not support outputting the results as Markdown
       - name: Create Markdown Content
         id: create-markdown
         run: |
