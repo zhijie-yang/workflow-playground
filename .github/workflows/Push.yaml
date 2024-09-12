@@ -61,6 +61,7 @@ jobs:
 
   vul-scan:
     name: Vulnerability scan
+    needs: [ get-image-list ]
     uses: ./.github/workflows/vul-scan.yaml
     with:
       oci-image-path: "oci/grafana-agent"
