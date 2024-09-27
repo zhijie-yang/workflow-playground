@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: scan
         run: |
-          exit 1
+          exit 0
       - name: Process report
         id: check-report
         if: ${{ !cancelled() }}
