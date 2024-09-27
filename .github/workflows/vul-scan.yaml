@@ -31,8 +31,12 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      - name: scan
+        run: |
+          exit 1
       - name: Process report
         id: check-report
+        if: ${{ !cancelled() }}
         run: |
           report="${{ github.workspace }}/report.json"
           echo "notify=false" >> "$GITHUB_OUTPUT"
