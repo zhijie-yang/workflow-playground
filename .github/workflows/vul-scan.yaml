@@ -51,6 +51,9 @@ jobs:
                      PkgName: .PkgName, Severity: .Severity}
                 ]' < $report)"
           echo "vulnerabilities=$vulnerabilities" >> "$GITHUB_OUTPUT"
+          is_vulnerable=$(echo "$vulnerabilities" | jq -r 'length > 0')
+          echo "is_vulnerable=$is_vulnerable" >> "$GITHUB_OUTPUT"
+          echo "Is vulnerable: $is_vulnerable"
           last_modified_dates="$(echo "$vulnerabilities" | jq -r '.[] | select(.LastModifiedDate != null) | .LastModifiedDate')"
           cat "$GITHUB_OUTPUT"
           # We want to notify only if the CVEs have been updated since the last
