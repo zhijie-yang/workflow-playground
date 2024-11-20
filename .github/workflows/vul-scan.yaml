@@ -38,7 +38,7 @@ jobs:
         id: check-report
         if: ${{ !cancelled() }}
         run: |
-          report="${{ github.workspace }}/report.json"
+          report="${{ github.workspace }}/report-vul.json"
           echo "notify=false" >> "$GITHUB_OUTPUT"
           set -x
           vulnerabilities="$(jq -r -c '[
